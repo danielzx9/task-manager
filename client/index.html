@@ -15,7 +15,12 @@
             <input type="text" id="taskInput" placeholder="Nueva tarea" required>
             <button type="submit">Agregar Tarea</button>
         </form>
-        <ul id="taskList"></ul>
+
+        <section id="tasksContainer">
+            <p id="noTasksMessage" style="display: none">No hay tareas pendientes</p>
+            <ul id="taskList"></ul>
+        </section>
+        
     </div>
     <script src="app.js"></script>
 
