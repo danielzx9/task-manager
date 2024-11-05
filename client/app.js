@@ -1,78 +1,67 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const taskForm = document.getElementById('taskForm');
-    const taskInput = document.getElementById('taskInput');
-    const taskList = document.getElementById('taskList');
-    const noTasksMessage = document.getElementById('noTasksMessage');
 
-    taskForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const taskTitle = taskInput.value;
+// Elementos de tareas
+const taskForm = document.getElementById('taskForm');
+const taskInput = document.getElementById('taskInput');
+const taskList = document.getElementById('taskList');
 
-        const response = await fetch('http://localhost:5000/api/tasks', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ title: taskTitle }),
-        });
 
-        if (response.ok) {
-            taskInput.value = '';
-            fetchTasks();
-        }
+
+// Manejar envío de nuevas tareas
+taskForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+
+    const taskTitle = taskInput.value;
+
+    const response = await fetch('http://localhost:5000/api/tasks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ title: taskTitle })
     });
 
-    async function fetchTasks() {
-        const response = await fetch('http://localhost:5000/api/tasks');
-        const tasks = await response.json();
-        renderTasks(tasks);
-    }
-
-    function renderTasks(tasks) {
-        taskList.innerHTML = '';
-
-        if (tasks.length === 0) {
-            noTasksMessage.style.display = 'block';
-        } else {
-            noTasksMessage.style.display = 'none';
-        }
-
-        tasks.forEach(task => {
-            const li = document.createElement('li');
-            li.textContent = task.title;
-            li.style.textDecoration = task.completed ? 'line-through' : 'none';
-
-            const completeButton = document.createElement('button');
-            completeButton.textContent = task.completed ? 'Desmarcar' : 'Completar';
-            completeButton.addEventListener('click', () => toggleComplete(task._id, !task.completed));
-
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Eliminar';
-            deleteButton.addEventListener('click', () => deleteTask(task._id));
-
-            li.appendChild(completeButton);
-            li.appendChild(deleteButton);
-            taskList.appendChild(li);
-        });
-    }
-
-    async function toggleComplete(id, completed) {
-        await fetch(`http://localhost:5000/api/tasks/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ completed }),
-        });
+    if (response.ok) {
+        taskInput.value = '';
         fetchTasks();
+    } else {
+        console.error('Error al agregar la tarea');
     }
-
-    async function deleteTask(id) {
-        await fetch(`http://localhost:5000/api/tasks/${id}`, {
-            method: 'DELETE',
-        });
-        fetchTasks();
-    }
-
-    fetchTasks(); // Cargar las tareas al iniciar
 });
+
+// Función para obtener y renderizar las tareas
+async function fetchTasks() {
+    const token = localStorage.getItem('token');
+    const response = await fetch('http://localhost:5000/api/tasks', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+    });
+    
+    if (!response.ok) {
+        console.error('Error al obtener las tareas:', response.statusText);
+        return;
+    }
+
+    const tasks = await response.json();
+    console.log('Tareas obtenidas:', tasks); // Verifica el contenido de tasks
+
+    if (Array.isArray(tasks)) {
+        renderTasks(tasks);
+    } else {
+        console.error('La respuesta no es un arreglo:', tasks);
+    }
+}
+
+// Renderizar tareas en la lista
+function renderTasks(tasks) {
+    taskList.innerHTML = ''; // Limpiar lista
+    tasks.forEach(task => {
+        const li = document.createElement('li');
+        li.textContent = task.title;
+        taskList.appendChild(li);
+    });
+}

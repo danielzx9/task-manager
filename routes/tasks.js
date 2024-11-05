@@ -2,31 +2,40 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
 const mongoose = require('mongoose');
+const authMiddleware = require('../middleware/authMiddleware');
 
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
+    // Solo usuarios autenticados pueden acceder a esta ruta
     try {
-        const tasks = await Task.find();
+        const tasks = await Task.find({ userId: req.user.userId }); // Filtrar tareas por usuario
         res.json(tasks);
-
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-})
+});
 
-router.post('/', async (req, res) => {
-    const task = new Task({
-        title: req.body.title,
-    });
+router.post('/', authMiddleware, async (req, res) => {
+    console.log(req.body);
+    const { title } = req.body;
 
-    try {
-        const newTask = await task.save();
-        res.status(201).json(newTask);
-
-    } catch (err) {
-        res.status(400).json({ message: err.message });
+    if (!title) {
+        return res.status(400).json({ message: 'El título de la tarea es obligatorio' });
     }
 
-})
+    try {
+        const newTask = new Task({
+            title,
+            userId: req.user.userId // Asegúrate de que estás guardando el usuario correcto
+        });
+
+        await newTask.save();
+        res.status(201).json(newTask);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Error del servidor');
+    }
+});
+
 
 router.put('/:id', async (req, res) => { // <--- se corrigió la sintaxis
     try {

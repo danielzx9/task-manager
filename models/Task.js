@@ -14,6 +14,12 @@ const TaskSchema = new mongoose.Schema({
         type: Date, 
         default: Date.now,
     },
-})
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true, // Este campo es obligatorio
+        ref: 'User' // Referencia al modelo de usuario
+    }
+});
 
-module.exports = mongoose.model('Task',TaskSchema);
+const Task = mongoose.model('Task', TaskSchema);
+module.exports = Task;
