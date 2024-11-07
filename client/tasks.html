@@ -7,20 +7,29 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2>Gestor de Tareas</h2>
-    <button onclick="logout()">Cerrar sesión</button>
-    <form id="taskForm">
-        <input type="text" id="taskInput" placeholder="Nueva tarea" required>
-        <button type="submit">Agregar Tarea</button>
-    </form>
-    <ul id="taskList"></ul>
+    <div id="app">
+        <h1>Gestor de Tareas</h1>
+        <button onclick="logout()" style="background-color: #dc3545; color: #fff; width: 100%; margin-bottom: 20px;">
+            Cerrar sesión
+        </button>
+
+        <form id="taskForm">
+            <input type="text" id="taskInput" placeholder="Nueva tarea" required>
+            <button type="submit">Agregar</button>
+        </form>
+
+        <ul id="taskList">
+            <!-- Lista de tareas aparecerá aquí -->
+        </ul>
+        <p id="noTasksMessage" style="display: none;">No hay tareas pendientes</p>
+    </div>
 
     <script src="app.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = 'login.html';  // Redirige al login si no hay token
+                window.location.href = 'login.html';
             }
             fetchTasks();
         });

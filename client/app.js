@@ -30,6 +30,44 @@ taskForm.addEventListener('submit', async (e) => {
     }
 });
 
+async function completeTask(taskId, completed) {
+    const token = localStorage.getItem('token');  
+
+    const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ completed: !completed }) 
+    });
+
+    if (response.ok) {
+        fetchTasks(); 
+    } else {
+        console.error('Error al completar la tarea:', response.statusText);
+    }
+}
+
+async function deleteTask(taskId) {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if(response.ok){
+        fetchTasks();
+
+    }else{
+        console.error('Error al eliminar la tarea: ', response.statusText);
+    }
+}
+
+
 // Función para obtener y renderizar las tareas
 async function fetchTasks() {
     const token = localStorage.getItem('token');
@@ -61,7 +99,42 @@ function renderTasks(tasks) {
     taskList.innerHTML = ''; // Limpiar lista
     tasks.forEach(task => {
         const li = document.createElement('li');
-        li.textContent = task.title;
+        li.classList.toggle('completed', task.completed); // Agrega clase 'completed' si la tarea está completada
+
+        const title = document.createElement('span');
+        title.textContent = task.title;
+
+        // Botón de completar
+        const completeButton = document.createElement('button');
+        completeButton.textContent = task.completed ? 'Desmarcar' : 'Completar';
+        completeButton.addEventListener('click', () => toggleComplete(task._id, !task.completed));
+
+        // Botón de eliminar
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Eliminar';
+        deleteButton.addEventListener('click', () => deleteTask(task._id));
+
+        li.appendChild(title);
+        li.appendChild(completeButton);
+        li.appendChild(deleteButton);
         taskList.appendChild(li);
     });
+}
+
+async function toggleComplete(taskId, completed) {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ completed })
+    });
+
+    if (!response.ok) {
+        console.error('Error al actualizar la tarea');
+    } else {
+        fetchTasks(); // Actualiza la lista de tareas
+    }
 }

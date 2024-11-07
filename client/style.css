@@ -69,3 +69,8 @@ button {
     color: #888;
     text-align: center;
 }
+
+.completed span {
+    text-decoration: line-through;
+    color: #888;
+}
