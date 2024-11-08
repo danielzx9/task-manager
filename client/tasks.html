@@ -24,10 +24,27 @@
             <button type="submit">Agregar</button>
         </form>
 
+        <div id="filters">
+            <input type="text" id="searchInput" placeholder="Buscar tarea...">
+            <select id="priorityFilter">
+                <option value="all">Todas las prioridades</option>
+                <option value="low">Baja</option>
+                <option value="medium">Media</option>
+                <option value="high">Alta</option>
+            </select>
+            <select id="statusFilter">
+                <option value="all">Todas</option>
+                <option value="completed">Completadas</option>
+                <option value="pending">Pendientes</option>
+            </select>
+        </div>
+
         <ul id="taskList">
             <!-- Lista de tareas aparecerá aquí -->
         </ul>
         <p id="noTasksMessage" style="display: none;">No hay tareas pendientes</p>
+        
+        
     </div>
 
     <script src="app.js"></script>

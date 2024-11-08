@@ -10,7 +10,7 @@ body {
 
 #app {
     width: 100%;
-    max-width: 400px;
+    max-width: 600px;
     background: #fff;
     padding: 20px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
@@ -25,6 +25,7 @@ h1 {
 #taskForm {
     display: flex;
     gap: 10px;
+    padding: 0.5em;
 }
 
 #taskInput {
@@ -86,4 +87,17 @@ button {
 
 .high-priority {
     background-color: #f8d7da; /* Rojo claro */
+}
+
+#filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 1%;
+}
+
+#searchInput, #priorityFilter, #statusFilter {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }

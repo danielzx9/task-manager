@@ -5,6 +5,39 @@ const taskInput = document.getElementById('taskInput');
 const taskList = document.getElementById('taskList');
 
 
+// Variables para los filtros
+const searchInput = document.getElementById('searchInput');
+const priorityFilter = document.getElementById('priorityFilter');
+const statusFilter = document.getElementById('statusFilter');
+
+searchInput.addEventListener('input', applyFilters); // Búsqueda
+priorityFilter.addEventListener('change', applyFilters); // Filtro de prioridad
+statusFilter.addEventListener('change', applyFilters); // Filtro de estado
+
+function applyFilters() {
+    const searchText = searchInput.value.toLowerCase();
+    const priority = priorityFilter.value;
+    const status = statusFilter.value;
+
+    const filteredTasks = allTasks.filter(task => {
+        const matchesSearch = task.title.toLowerCase().includes(searchText);
+
+        const matchesPriority = priority === 'all' || task.priority === priority;
+
+        // Filtro por estado (completado o pendiente)
+        const matchesStatus =
+            status === 'all' ||
+            (status === 'completed' && task.completed) ||
+            (status === 'pending' && !task.completed);
+
+        return matchesSearch && matchesPriority && matchesStatus;
+    });
+
+    // Renderizar las tareas filtradas
+    renderTasks(filteredTasks);
+}
+
+
 
 // Manejar envío de nuevas tareas
 taskForm.addEventListener('submit', async (e) => {
@@ -70,29 +103,30 @@ async function deleteTask(taskId) {
     }
 }
 
-
+let allTasks = []; 
 // Función para obtener y renderizar las tareas
 async function fetchTasks() {
     const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:5000/api/tasks', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-    });
     
-    if (!response.ok) {
-        console.error('Error al obtener las tareas:', response.statusText);
-        return;
-    }
+    try {
+        const response = await fetch('http://localhost:5000/api/tasks', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
 
-    const tasks = await response.json();
+        if (!response.ok) {
+            console.error('Error al obtener las tareas:', response.statusText);
+            return;
+        }
 
-    if (Array.isArray(tasks)) {
-        renderTasks(tasks);
-    } else {
-        console.error('La respuesta no es un arreglo:', tasks);
+        allTasks = await response.json(); 
+        applyFilters(); 
+
+    } catch (error) {
+        console.error('Hubo un problema al obtener las tareas:', error);
     }
 }
 
