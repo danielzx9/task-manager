@@ -17,16 +17,21 @@ router.get('/', authMiddleware, async (req, res) => {
 
 router.post('/', authMiddleware, async (req, res) => {
     console.log(req.body);
-    const { title, priority } = req.body;
+    const { title, priority, dueDate } = req.body;
 
     if (!title) {
         return res.status(400).json({ message: 'El título de la tarea es obligatorio' });
+    }
+
+    if (dueDate && new Date(dueDate) < new Date()) {
+        return res.status(400).json({ message: 'La fecha de vencimiento no puede estar en el pasado' });
     }
 
     try {
         const newTask = new Task({
             title,
             priority,
+            dueDate,
             userId: req.user.userId // Asegúrate de que estás guardando el usuario correcto
         });
 

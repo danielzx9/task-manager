@@ -13,6 +13,7 @@ taskForm.addEventListener('submit', async (e) => {
 
     const taskTitle = taskInput.value;
     const taskPriority = document.getElementById('prioritySelect').value;
+    const dueDate = document.getElementById('dueDateInput').value;
 
     const response = await fetch('http://localhost:5000/api/tasks', {
         method: 'POST',
@@ -20,11 +21,12 @@ taskForm.addEventListener('submit', async (e) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ title: taskTitle, priority: taskPriority })
+        body: JSON.stringify({ title: taskTitle, dueDate: dueDate , priority: taskPriority, })
     });
 
     if (response.ok) {
         taskInput.value = '';
+        document.getElementById('dueDateInput').value = '';
         fetchTasks();
     } else {
         console.error('Error al agregar la tarea');
@@ -115,6 +117,21 @@ function renderTasks(tasks) {
             li.classList.add('high-priority');
         }
 
+        //Fecha vencimiento
+        const dueDate = new Date(task.dueDate);
+        const dueDateText = document.createElement('span');
+        dueDateText.textContent = dueDate ? ` (Vence: ${dueDate.toLocaleDateString()})` : '';
+
+        const today = new Date();
+        if (dueDate < today) {
+            dueDateText.style.color = 'red'; // Vencido
+            dueDateText.textContent = dueDateText.completed;
+        } else if ((dueDate - today) / (1000 * 60 * 60 * 24) <= 3) {
+            dueDateText.style.color = 'orange'; // Próximo a vencer
+        } else {
+            dueDateText.style.color = 'green'; // Sin vencer
+        }
+
         // Añadir botones para completar y eliminar
         const completeButton = document.createElement('button');
         completeButton.textContent = task.completed ? 'Descompletar' : 'Completar';
@@ -131,6 +148,7 @@ function renderTasks(tasks) {
         });
 
         li.appendChild(title);
+        li.appendChild(dueDateText);
         li.appendChild(completeButton);
         li.appendChild(deleteButton);
         taskList.appendChild(li);
