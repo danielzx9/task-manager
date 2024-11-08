@@ -7,7 +7,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.get('/', authMiddleware, async (req, res) => {
     // Solo usuarios autenticados pueden acceder a esta ruta
     try {
-        const tasks = await Task.find({ userId: req.user.userId }); // Filtrar tareas por usuario
+        const tasks = await Task.find({ userId: req.user.userId,  }); // Filtrar tareas por usuario
+
         res.json(tasks);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -16,7 +17,7 @@ router.get('/', authMiddleware, async (req, res) => {
 
 router.post('/', authMiddleware, async (req, res) => {
     console.log(req.body);
-    const { title } = req.body;
+    const { title, priority } = req.body;
 
     if (!title) {
         return res.status(400).json({ message: 'El título de la tarea es obligatorio' });
@@ -25,6 +26,7 @@ router.post('/', authMiddleware, async (req, res) => {
     try {
         const newTask = new Task({
             title,
+            priority,
             userId: req.user.userId // Asegúrate de que estás guardando el usuario correcto
         });
 

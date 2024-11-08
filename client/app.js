@@ -12,6 +12,7 @@ taskForm.addEventListener('submit', async (e) => {
     const token = localStorage.getItem('token');
 
     const taskTitle = taskInput.value;
+    const taskPriority = document.getElementById('prioritySelect').value;
 
     const response = await fetch('http://localhost:5000/api/tasks', {
         method: 'POST',
@@ -19,7 +20,7 @@ taskForm.addEventListener('submit', async (e) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ title: taskTitle })
+        body: JSON.stringify({ title: taskTitle, priority: taskPriority })
     });
 
     if (response.ok) {
@@ -85,7 +86,6 @@ async function fetchTasks() {
     }
 
     const tasks = await response.json();
-    console.log('Tareas obtenidas:', tasks); // Verifica el contenido de tasks
 
     if (Array.isArray(tasks)) {
         renderTasks(tasks);
@@ -94,25 +94,41 @@ async function fetchTasks() {
     }
 }
 
-// Renderizar tareas en la lista
+
 function renderTasks(tasks) {
     taskList.innerHTML = ''; // Limpiar lista
     tasks.forEach(task => {
         const li = document.createElement('li');
-        li.classList.toggle('completed', task.completed); // Agrega clase 'completed' si la tarea está completada
+        li.classList.toggle('completed', task.completed); 
 
         const title = document.createElement('span');
         title.textContent = task.title;
 
-        // Botón de completar
-        const completeButton = document.createElement('button');
-        completeButton.textContent = task.completed ? 'Desmarcar' : 'Completar';
-        completeButton.addEventListener('click', () => toggleComplete(task._id, !task.completed));
+        li.classList.remove('low-priority', 'medium-priority', 'high-priority');
 
-        // Botón de eliminar
+        //Prioridades
+        if (task.priority === 'low') {
+            li.classList.add('low-priority');
+        } else if (task.priority === 'medium') {
+            li.classList.add('medium-priority');
+        } else if (task.priority === 'high') {
+            li.classList.add('high-priority');
+        }
+
+        // Añadir botones para completar y eliminar
+        const completeButton = document.createElement('button');
+        completeButton.textContent = task.completed ? 'Descompletar' : 'Completar';
+        completeButton.addEventListener('click', async () => {
+            await toggleTaskCompletion(task._id, !task.completed);
+            fetchTasks();
+        });
+
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Eliminar';
-        deleteButton.addEventListener('click', () => deleteTask(task._id));
+        deleteButton.addEventListener('click', async () => {
+            await deleteTask(task._id);
+            fetchTasks();
+        });
 
         li.appendChild(title);
         li.appendChild(completeButton);
