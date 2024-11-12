@@ -47,6 +47,8 @@ taskForm.addEventListener('submit', async (e) => {
     const taskTitle = taskInput.value;
     const taskPriority = document.getElementById('prioritySelect').value;
     const dueDate = document.getElementById('dueDateInput').value;
+    const taskTags = taskTagsInput.value.split(',').map(tag => tag.trim()); 
+
 
     const response = await fetch('http://localhost:5000/api/tasks', {
         method: 'POST',
@@ -54,7 +56,7 @@ taskForm.addEventListener('submit', async (e) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ title: taskTitle, dueDate: dueDate , priority: taskPriority, })
+        body: JSON.stringify({ title: taskTitle, dueDate: dueDate , priority: taskPriority, tags: taskTags })
     });
 
     if (response.ok) {
@@ -170,7 +172,7 @@ function renderTasks(tasks) {
         const completeButton = document.createElement('button');
         completeButton.textContent = task.completed ? 'Descompletar' : 'Completar';
         completeButton.addEventListener('click', async () => {
-            await toggleTaskCompletion(task._id, !task.completed);
+            await toggleComplete(task._id, !task.completed);
             fetchTasks();
         });
 

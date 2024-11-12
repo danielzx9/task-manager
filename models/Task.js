@@ -23,6 +23,10 @@ const TaskSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true, // Este campo es obligatorio
         ref: 'User' // Referencia al modelo de usuario
+    },
+    tags: {
+        type: [String],
+        required: false
     }
 });
 

@@ -32,6 +32,7 @@ router.post('/', authMiddleware, async (req, res) => {
             title,
             priority,
             dueDate,
+            tags,
             userId: req.user.userId // Asegúrate de que estás guardando el usuario correcto
         });
 
@@ -56,6 +57,9 @@ router.put('/:id', async (req, res) => { // <--- se corrigió la sintaxis
         }
         if (req.body.completed != null) {
             task.completed = req.body.completed;
+        }
+        if (req.body.tags != null){
+            task.tags = req.body.tags;
         }
 
         const updatedTask = await task.save();
